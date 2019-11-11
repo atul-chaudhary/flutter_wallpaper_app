@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "20977709446",
+    "firebase_url": "https://denhpywalls.firebaseio.com",
+    "project_id": "denhpywalls",
+    "storage_bucket": "denhpywalls.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20977709446:android:a84bd31f73d90994cfbc07",
+        "android_client_info": {
+          "package_name": "com.rnatechlabs.denphy_wallpapers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "20977709446-o3l7sff2rautfgagiguc3ae6i9vcv5lk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB47-fH3Xmcedo5N2f0uhy_KjoET9Sf5Fs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "20977709446-o3l7sff2rautfgagiguc3ae6i9vcv5lk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
