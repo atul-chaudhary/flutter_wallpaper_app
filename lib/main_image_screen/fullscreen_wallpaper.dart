@@ -20,15 +20,20 @@ class _FullScreenImagePageState extends State<FullScreenImagePage> {
   bool permission = false;
   bool downloading = false;
   var progress = '';
+  var _progresss;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     //getPermission();
+    ImageDownloader.callback(onProgressUpdate: (String imageId, int progress) {
+      setState(() {
+        _progresss = progress;
+        print('>>>>>>>>>>>>>>>>>>$_progresss');
+      });
+    });
   }
-
-
 
   final LinearGradient backgroundGradient = new LinearGradient(
       colors: [new Color(0x10000000), new Color(0x30000000)],
@@ -46,9 +51,8 @@ class _FullScreenImagePageState extends State<FullScreenImagePage> {
         fontSize: 16.0);
   }
 
-
   IconData changeIcon() {
-    if (progress == 'Complete') {
+    if (_progresss == 100) {
       setState(() {
         return Icons.done;
       });
@@ -108,8 +112,8 @@ class _FullScreenImagePageState extends State<FullScreenImagePage> {
                 onTap: () async {
                   try {
                     toastFunction(context, 'Image Downloading In Background');
-                    var imageId =
-                    await ImageDownloader.downloadImage(widget.imgPath,
+                    var imageId = await ImageDownloader.downloadImage(
+                      widget.imgPath,
                       destination: AndroidDestinationType.custom()
                         ..subDirectory("denphy walls/${widget.imgName}.jpg"),
                     );
@@ -126,7 +130,9 @@ class _FullScreenImagePageState extends State<FullScreenImagePage> {
                           borderRadius: BorderRadius.circular(100),
                           border: Border.all(width: 2, color: Colors.white)),
                       child: Icon(
-                        changeIcon(),
+                        (_progresss != 100)
+                            ? Icons.arrow_downward
+                            : Icons.done,
                         color: Colors.white,
                       ),
                     )),
