@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'dart:math';
 
 class WallScreen extends StatefulWidget {
   @override
@@ -54,9 +55,11 @@ class _WallScreenState extends State<WallScreen> {
                 crossAxisCount: 4,
                 itemCount: wallpapersList.length,
                 itemBuilder: (context, i) {
-                  String imgPath = wallpapersList[i].data['name1'];
-                  String fullImageLink = wallpapersList[i].data['image_link'];
-                  String imageName = wallpapersList[i].data['image_name'];
+                  Random random=new Random();
+                  var r=0+random.nextInt(wallpapersList.length);
+                  String imgPath = wallpapersList[r].data['name1'];
+                  String fullImageLink = wallpapersList[r].data['image_link'];
+                  String imageName = wallpapersList[r].data['image_name'];
                   print(imgPath);
                   return new Material(
                     elevation: 8.0,

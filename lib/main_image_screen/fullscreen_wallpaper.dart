@@ -1,10 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter/services.dart';
 import 'dart:io' as Io;
+import 'dart:async';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:image_downloader/image_downloader.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class FullScreenImagePage extends StatefulWidget {
   final String imgPath;
@@ -17,10 +22,12 @@ class FullScreenImagePage extends StatefulWidget {
 }
 
 class _FullScreenImagePageState extends State<FullScreenImagePage> {
+  static const platform = const MethodChannel('samples.flutter.dev/battery');
   bool permission = false;
   bool downloading = false;
   var progress = '';
   var _progresss;
+  String _batteryLevel = 'Unknown battery level.';
 
   @override
   void initState() {
@@ -67,6 +74,7 @@ class _FullScreenImagePageState extends State<FullScreenImagePage> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     //toastFunction(context, 'Double tap to Zoom');
 
     return new Scaffold(
@@ -77,17 +85,34 @@ class _FullScreenImagePageState extends State<FullScreenImagePage> {
             children: <Widget>[
               new Align(
                 alignment: Alignment.center,
-                child: new Hero(
-                  tag: widget.imgPath,
-                  child: PhotoView(
-                    imageProvider: NetworkImage(
-                      widget.imgPath,
+                child: PhotoView.customChild(
+                  child: CachedNetworkImage(
+                    imageUrl: widget.imgPath,
+                    placeholder: (context, url) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Center(
+                          child: Container(
+                            height: 40,
+                            width: 40,
+                            margin: EdgeInsets.all(5),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.0,
+                              valueColor: AlwaysStoppedAnimation(Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    loadingChild: CircularProgressIndicator(),
-                    minScale: PhotoViewComputedScale.contained * 0.8,
-                    maxScale: PhotoViewComputedScale.covered * 1.8,
-                    //initialScale: height,
                   ),
+                  //loadingChild: CircularProgressIndicator(),
+                  childSize: Size(width, height),
+                  //initialScale: PhotoViewComputedScale.covered*height,
+                  minScale: PhotoViewComputedScale.contained * 0.8,
+                  maxScale: PhotoViewComputedScale.covered * 1.8,
+                  heroAttributes: PhotoViewHeroAttributes(tag: widget.imgPath),
+                  //initialScale: height,
                 ),
               ),
               GestureDetector(
@@ -130,33 +155,133 @@ class _FullScreenImagePageState extends State<FullScreenImagePage> {
                           borderRadius: BorderRadius.circular(100),
                           border: Border.all(width: 2, color: Colors.white)),
                       child: Icon(
-                        (_progresss != 100)
-                            ? Icons.arrow_downward
-                            : Icons.done,
+                        (_progresss != 100) ? Icons.arrow_downward : Icons.done,
                         color: Colors.white,
                       ),
                     )),
               ),
               new Align(
-                  alignment: Alignment.bottomLeft,
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      margin: EdgeInsets.all(20),
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          border: Border.all(width: 2, color: Colors.white)),
-                      child: Icon(
-                        Icons.image,
-                        color: Colors.white,
-                      ),
+                alignment: Alignment.bottomLeft,
+                child: GestureDetector(
+                  onTap: () {
+                    setWallpaperDialog();
+                    ///_getBatteryLevel();
+                  },
+                  child: Container(
+                    margin: EdgeInsets.all(20),
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(width: 2, color: Colors.white)),
+                    child: Icon(
+                      Icons.image,
+                      color: Colors.white,
                     ),
-                  ))
+                  ),
+                ),
+              )
             ],
           ),
         ),
       ),
     );
+  }
+
+  //function for the setting wallpaper in android;
+  void setWallpaperDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Set a wallpaper',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              ListTile(
+                title: Text(
+                  'Home Screen',
+                  style: TextStyle(color: Colors.black),
+                ),
+                leading: Icon(
+                  Icons.home,
+                  color: Colors.black,
+                ),
+                onTap: () => _setWallpaper(1),
+              ),
+              ListTile(
+                title: Text(
+                  'Lock Screen',
+                  style: TextStyle(color: Colors.black),
+                ),
+                leading: Icon(
+                  Icons.lock,
+                  color: Colors.black,
+                ),
+                onTap: () => _setWallpaper(2),
+              ),
+              ListTile(
+                title: Text(
+                  'Both',
+                  style: TextStyle(color: Colors.black),
+                ),
+                leading: Icon(
+                  Icons.phone_android,
+                  color: Colors.black,
+                ),
+                onTap: () => _setWallpaper(3),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _setWallpaper(int wallpaperType) async {
+    var file =
+        await DefaultCacheManager().getSingleFile(widget.imgPath);
+    try {
+      final int result = await platform
+          .invokeMethod('setWallpaper',{"path":file.path,"type":wallpaperType});
+      print('Wallpaer Updated.... $result');
+    } on PlatformException catch (e) {
+      print("Failed to Set Wallpaer: '${e.message}'.");
+    }
+    Fluttertoast.showToast(
+        msg: "Wallpaper set successfully",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black,
+        fontSize: 16.0);
+    Navigator.pop(context);
+  }
+
+  Future<void> _getBatteryLevel() async {
+    String batteryLevel;
+    try {
+      final int result = await platform.invokeMethod('getBatteryLevel',{"path":"fuck bo"});
+      batteryLevel = 'Battery level at $result % .';
+    } on PlatformException catch (e) {
+      batteryLevel = "Failed to get battery level: '${e.message}'.";
+    }
+
+    setState(() {
+      _batteryLevel = batteryLevel;
+      print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<>$_batteryLevel');
+    });
   }
 }
