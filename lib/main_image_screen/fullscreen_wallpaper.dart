@@ -85,29 +85,10 @@ class _FullScreenImagePageState extends State<FullScreenImagePage> {
             children: <Widget>[
               new Align(
                 alignment: Alignment.center,
-                child: PhotoView.customChild(
-                  child: CachedNetworkImage(
-                    imageUrl: widget.imgPath,
-                    placeholder: (context, url) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Center(
-                          child: Container(
-                            height: 40,
-                            width: 40,
-                            margin: EdgeInsets.all(5),
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.0,
-                              valueColor: AlwaysStoppedAnimation(Colors.white),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  //loadingChild: CircularProgressIndicator(),
-                  childSize: Size(width, height),
+                child: PhotoView(
+                  imageProvider: CachedNetworkImageProvider(widget.imgPath), 
+                  loadingChild: CircularProgressIndicator(),
+                  //childSize: Size(width, height),
                   //initialScale: PhotoViewComputedScale.covered*height,
                   minScale: PhotoViewComputedScale.contained * 0.8,
                   maxScale: PhotoViewComputedScale.covered * 1.8,
@@ -140,7 +121,7 @@ class _FullScreenImagePageState extends State<FullScreenImagePage> {
                     var imageId = await ImageDownloader.downloadImage(
                       widget.imgPath,
                       destination: AndroidDestinationType.custom()
-                        ..subDirectory("denphy walls/${widget.imgName}.jpg"),
+                        ..subDirectory("denphy walls/${widget.imgName}"),
                     );
                   } catch (e) {
                     print(e);
@@ -284,4 +265,6 @@ class _FullScreenImagePageState extends State<FullScreenImagePage> {
       print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<>$_batteryLevel');
     });
   }
+
+
 }

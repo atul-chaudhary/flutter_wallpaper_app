@@ -8,6 +8,8 @@ import 'package:progress_indicators/progress_indicators.dart';
 import 'dart:math';
 
 class WallScreen extends StatefulWidget {
+  String appBarNameTag;
+  WallScreen(this.appBarNameTag);
   @override
   _WallScreenState createState() => new _WallScreenState();
 }
@@ -22,11 +24,20 @@ class _WallScreenState extends State<WallScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    subscription = collectionReference.snapshots().listen((datasnapshot) {
-      setState(() {
-        wallpapersList = datasnapshot.documents;
+    if(widget.appBarNameTag == 'Recents'){
+      subscription = collectionReference.orderBy('name2',descending: true).snapshots().listen((datasnapshot) {
+        setState(() {
+          wallpapersList = datasnapshot.documents;
+        });
       });
-    });
+    }
+    else{
+      subscription = collectionReference.orderBy('no_of_downloads',descending: true).snapshots().listen((datasnapshot) {
+        setState(() {
+          wallpapersList = datasnapshot.documents;
+        });
+      });
+    }
 
     // _currentScreen();
   }
@@ -42,7 +53,7 @@ class _WallScreenState extends State<WallScreen> {
     return new Scaffold(
         appBar: new AppBar(
           title: new Text(
-            "Recents",
+            widget.appBarNameTag,
             style: TextStyle(
                 fontFamily: 'Welcome', color: Colors.blue, fontSize: 32.0),
           ),
@@ -55,11 +66,11 @@ class _WallScreenState extends State<WallScreen> {
                 crossAxisCount: 4,
                 itemCount: wallpapersList.length,
                 itemBuilder: (context, i) {
-                  Random random=new Random();
-                  var r=0+random.nextInt(wallpapersList.length);
-                  String imgPath = wallpapersList[r].data['name1'];
-                  String fullImageLink = wallpapersList[r].data['image_link'];
-                  String imageName = wallpapersList[r].data['image_name'];
+                  //Random random=new Random();
+                  //var r=0+random.nextInt(wallpapersList.length);
+                  String imgPath = wallpapersList[i].data['name1'];
+                  String fullImageLink = wallpapersList[i].data['image_link'];
+                  String imageName = wallpapersList[i].data['image_name'];
                   print(imgPath);
                   return new Material(
                     elevation: 8.0,

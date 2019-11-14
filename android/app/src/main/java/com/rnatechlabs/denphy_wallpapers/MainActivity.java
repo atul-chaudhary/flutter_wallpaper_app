@@ -22,10 +22,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.io.FilenameFilter;
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 import io.flutter.plugin.common.MethodCall;
@@ -54,18 +56,27 @@ public class MainActivity extends FlutterActivity {
                 new MethodCallHandler() {
                     @Override
                     public void onMethodCall(MethodCall call, Result result) {
-                        String path = call.argument("path");
-                        int type = call.argument("type");
-                        android.util.Log.e(TAG, "onMethodCall: >>>>>>>" + path);
-                        android.util.Log.e(TAG, "onMethodCall: >>>>"+ type);
                         if (call.method.equals("setWallpaper")) {
+                            String path = call.argument("path");
+                            int type = call.argument("type");
+                            android.util.Log.e(TAG, "onMethodCall: >>>>>>>" + path);
+                            android.util.Log.e(TAG, "onMethodCall: >>>>"+ type);
                             int setWallpaper = setWallpaper(path,type);
                             if (setWallpaper == 0) {
                                 result.success(setWallpaper);
                             } else {
                                 result.error("UNAVAILABLE", "", null);
                             }
-                        } else {
+                        } else if(call.method.equals("getImages")){
+                            android.util.Log.e(TAG, "onMethodCall: "+"get Images" );
+                            List<String> imgs = getImages();
+                            if (imgs.size() <= 0) {
+                                result.error("Empty", "No Images.", null);
+                            } else {
+                                result.success(imgs);
+                            }
+                        }
+                        else {
                             result.notImplemented();
                         }
                     }
@@ -101,5 +112,20 @@ public class MainActivity extends FlutterActivity {
             setWallpaper = 1;
         }
         return setWallpaper;
+    }
+
+    private List<String> getImages() {
+        File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()+"/denphy walls/");
+        folder.mkdirs();
+        File[] allFiles = folder.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png"));
+            }
+        });
+        List<String> item = new ArrayList<String>();
+        for (File file : allFiles) {
+            item.add(file + "");
+        }
+        return item;
     }
 }
