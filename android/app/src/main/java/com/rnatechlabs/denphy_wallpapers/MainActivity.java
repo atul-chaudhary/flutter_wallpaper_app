@@ -1,10 +1,7 @@
 package com.rnatechlabs.denphy_wallpapers;
 
 import android.os.Bundle;
-
 import androidx.annotation.RequiresApi;
-//import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.app.WallpaperManager;
 import android.content.ActivityNotFoundException;

@@ -17,7 +17,6 @@ class _DownloadsState extends State<Downloads> {
   static const platform = const MethodChannel('samples.flutter.dev/battery');
   List images;
 
-
   @override
   void initState() {
     // TODO: implement initState
@@ -40,46 +39,44 @@ class _DownloadsState extends State<Downloads> {
       ),
       body: images != null
           ? new StaggeredGridView.countBuilder(
-        padding: const EdgeInsets.all(8.0),
-        crossAxisCount: 4,
-        itemCount: images.length,
-        itemBuilder: (context, i) {
-          //Random random=new Random();
-          //var r=0+random.nextInt(wallpapersList.length);
-          String imgPath = images[i];
-          print(imgPath);
-          //ImageProvider imageProvider = MemoryImage(loa)
-          return new Material(
-            elevation: 8.0,
-            borderRadius:
-            new BorderRadius.all(new Radius.circular(8.0)),
-            child: new InkWell(
-              onTap: () {
-                //print(imageName);
-                Navigator.push(
-                    context,
-                    new MaterialPageRoute(
-                        builder: (context) =>
-                        new FullScreenImagePage(imgPath,"")));
+              padding: const EdgeInsets.all(8.0),
+              crossAxisCount: 4,
+              itemCount: images.length,
+              itemBuilder: (context, i) {
+                String imgPath = images[i];
+                print(imgPath);
+                return new Material(
+                  elevation: 8.0,
+                  borderRadius: new BorderRadius.all(new Radius.circular(8.0)),
+                  child: new InkWell(
+                    onTap: () {
+                      //print(imageName);
+                      Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                              builder: (context) =>
+                                  new FullScreenImagePage(imgPath, "")));
+                    },
+                    child: new Hero(
+                      tag: imgPath,
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.file(
+                            File(imgPath),
+                            fit: BoxFit.cover,
+                          )),
+                    ),
+                  ),
+                );
               },
-              child: new Hero(
-                tag: imgPath,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.file(File(imgPath),fit: BoxFit.cover,)
-                ),
-              ),
-            ),
-          );
-        },
-        staggeredTileBuilder: (i) =>
-        new StaggeredTile.count(2, i.isEven ? 2 : 3),
-        mainAxisSpacing: 8.0,
-        crossAxisSpacing: 8.0,
-      )
+              staggeredTileBuilder: (i) =>
+                  new StaggeredTile.count(2, i.isEven ? 2 : 3),
+              mainAxisSpacing: 8.0,
+              crossAxisSpacing: 8.0,
+            )
           : new Center(
-        child: new CircularProgressIndicator(),
-      ),
+              child: new CircularProgressIndicator(),
+            ),
     );
   }
 
@@ -101,14 +98,4 @@ class _DownloadsState extends State<Downloads> {
       images = imgs;
     });
   }
-
-  String lastitemRemover(String str){
-
-//    if (str != null && str.length > 0 && str.charAt(str.length - 1) == 'x') {
-//      str = str.substring(0, str.length - 1);
-//    }
-//    return str;
-
-  }
-
 }
