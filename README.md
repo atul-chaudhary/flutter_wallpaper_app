@@ -4,8 +4,6 @@ Denphy is a Wallpaper Application build completey with flutter, denphy uses Fire
  - Find all your wallpapers and backgrounds in one place.
  - Easily set any image as a wallpaper.
  - Choose between variety of wallpapers.
- - Share your favourite images with your friends.
- - Get more than 1 million stunning images from Pixabay.
  - Discover beautiful photos from different genre.
 
 ## App Screenshots
